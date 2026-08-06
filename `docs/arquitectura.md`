@@ -1,0 +1,40 @@
+# Arquitectura de NexaShop
+
+## 1. Descripción general
+
+NexaShop es una plataforma de comercio electrónico B2C (business-to-consumer) construida con un enfoque de **Clean Architecture**, separando las responsabilidades en capas independientes y testeables.
+
+El sistema cuenta con:
+
+- **Landing Page** pública con slider promocional.
+- **Catálogo de productos** con búsqueda, filtros y paginación.
+- **Carrito de compras** (persistido en backend para usuarios autenticados y en localStorage para invitados).
+- **Panel de administración** con métricas de ventas (gráficos mediante Recharts).
+- **Modo Dark/Light** automático según preferencias del sistema.
+- **Autenticación JWT** con roles: `cliente` y `admin`.
+
+## 2. Principios de arquitectura
+
+- **Clean Architecture**: el dominio y los casos de uso no dependen de frameworks, bases de datos ni interfaces externas.
+- **Inversión de dependencias**: las capas externas dependen de interfaces definidas por la capa de aplicación.
+- **Separación de preocupaciones**: cada módulo tiene una responsabilidad única.
+- **Api-First**: el frontend consume una API REST documentada (OpenAPI).
+- **Configuración por entorno**: variables de entorno para credenciales, secretos y URL pública.
+- **Monorepo ligero**: dos carpetas raíz (`backend` y `frontend`) con integración independiente.
+
+## 3. Stack tecnológico
+
+| Capa           | Tecnología                                  | Propósito                            |
+|----------------|---------------------------------------------|--------------------------------------|
+| Backend        | Python 3.11+, FastAPI                       | API REST, validación, Swagger        |
+| ORM            | SQLAlchemy 2.x (declarative)                | Modelado y persistencia              |
+| Auth           | JWT (PyJWT) + OAuth2 password flow          | Autenticación y autorización         |
+| Base de datos  | SQLite (desarrollo)                         | Persistencia local                   |
+| Migraciones    | Alembic                                     | Control de esquema                   |
+| Frontend       | React 18 + Vite                             | SPA React                            |
+| Estilos        | Tailwind CSS 3.x + CSS variables            | Diseño responsive y temas dark/light |
+| Gráficos       | Recharts                                    | Métricas del panel admin              |
+| HTTP Client    | TanStack Query (opcional recomendado)       | Cache, loading y estado remoto       |
+| Ruteo          | React Router v6                             | Navegación                           |
+
+## 4. Estructura de carpetas — Backend (`backend/`)
