@@ -6,8 +6,9 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
+  const { login } = useAuth(); // Usamos la función original del sistema
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirect = searchParams.get('redirect') || '/';
@@ -15,13 +16,23 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
     try {
+      // La función login del AuthContext hace todo:
+      // 1. Pide el token al backend
+      // 2. Guarda el token
+      // 3. Pide los datos del usuario
+      // 4. Actualiza el Navbar para mostrar tu nombre
       await login(email, password);
+     
+      // Redirigimos al usuario
       navigate(redirect, { replace: true });
     } catch (err) {
-      const detail = err.response?.data?.detail;
+      const detail = err.response?.data?.detail || err.message;
       setError(detail || 'Error al iniciar sesión');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -56,9 +67,10 @@ export default function LoginPage() {
 
         <button
           type="submit"
-          className="w-full bg-primary-600 text-white py-2 rounded-md font-semibold"
+          disabled={loading}
+          className="w-full bg-primary-600 text-white py-2 rounded-md font-semibold disabled:opacity-50"
         >
-          Entrar
+          {loading ? 'Ingresando...' : 'Entrar'}
         </button>
       </form>
 
