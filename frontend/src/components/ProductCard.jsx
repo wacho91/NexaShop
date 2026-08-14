@@ -3,7 +3,7 @@ import { useCart } from '../contexts/CartContext';
 
 export default function ProductCard({ product }) {
   const { addItem } = useCart();
-
+  console.log("Datos del producto", product.name, "Imagenes:", product.image);
   // === ROMPE-CÓDIGOS A PRUEBA DE TODO PARA IMÁGENES ===
   let mainImage = '';
   try {
