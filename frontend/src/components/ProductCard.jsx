@@ -4,20 +4,25 @@ import { useCart } from '../contexts/CartContext';
 export default function ProductCard({ product }) {
   const { addItem } = useCart();
 
-  // === LA MAGIA PARA ARREGLAR LA IMAGEN ===
-  let images = [];
+  // === ROMPE-CÓDIGOS A PRUEBA DE TODO PARA IMÁGENES ===
+  let mainImage = '';
   try {
-    // Si viene como texto ('["url"]'), lo convertimos a un array real ["url"]
-    if (typeof product.images === 'string') {
-      images = JSON.parse(product.images);
-    } else if (Array.isArray(product.images)) {
-      images = product.images;
+    if (Array.isArray(product.images) && product.images.length > 0) {
+      mainImage = product.images[0];
+    } else if (typeof product.images === 'string') {
+      // Si viene como texto tipo '["url"]'
+      if (product.images.trim().startsWith('[')) {
+        const parsed = JSON.parse(product.images);
+        if (Array.isArray(parsed) && parsed.length > 0) mainImage = parsed[0];
+      } else if (product.images.trim() !== '') {
+        // Si viene como texto plano separado por comas 'url1, url2'
+        mainImage = product.images.split(',')[0].trim();
+      }
     }
   } catch (e) {
-    images = []; // Si hay un error, lo dejamos vacío para mostrar "Sin imagen"
+    mainImage = ''; // Si todo falla, mostramos "Sin imagen"
   }
-  const mainImage = images[0] || '';
-  // ==========================================
+  // ======================================================
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden transition hover:shadow-lg">
