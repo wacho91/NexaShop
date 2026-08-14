@@ -31,13 +31,31 @@ export default function ProductDetailPage() {
   if (loading) return <Spinner />;
   if (!product) return null;
 
+  // === ROMPE-CÓDIGOS A PRUEBA DE TODO PARA IMÁGENES ===
+  let mainImage = '';
+  try {
+    if (Array.isArray(product.images) && product.images.length > 0) {
+      mainImage = product.images[0];
+    } else if (typeof product.images === 'string') {
+      if (product.images.trim().startsWith('[')) {
+        const parsed = JSON.parse(product.images);
+        if (Array.isArray(parsed) && parsed.length > 0) mainImage = parsed[0];
+      } else if (product.images.trim() !== '') {
+        mainImage = product.images.split(',')[0].trim();
+      }
+    }
+  } catch (e) {
+    mainImage = '';
+  }
+  // ======================================================
+
   return (
     <div className="max-w-7xl mx-auto py-8 px-4">
       <div className="grid md:grid-cols-2 gap-8">
         <div className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
-          {product.images[0] ? (
+          {mainImage ? (
             <img
-              src={product.images[0]}
+              src={mainImage}
               alt={product.name}
               className="w-full h-96 object-cover"
             />
