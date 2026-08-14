@@ -4,13 +4,28 @@ import { useCart } from '../contexts/CartContext';
 export default function ProductCard({ product }) {
   const { addItem } = useCart();
 
+  // === LA MAGIA PARA ARREGLAR LA IMAGEN ===
+  let images = [];
+  try {
+    // Si viene como texto ('["url"]'), lo convertimos a un array real ["url"]
+    if (typeof product.images === 'string') {
+      images = JSON.parse(product.images);
+    } else if (Array.isArray(product.images)) {
+      images = product.images;
+    }
+  } catch (e) {
+    images = []; // Si hay un error, lo dejamos vacío para mostrar "Sin imagen"
+  }
+  const mainImage = images[0] || '';
+  // ==========================================
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden transition hover:shadow-lg">
       <Link to={`/productos/${product.slug}`}>
         <div className="h-48 bg-gray-200 dark:bg-gray-700 overflow-hidden">
-          {product.images[0] ? (
+          {mainImage ? (
             <img
-              src={product.images[0]}
+              src={mainImage}
               alt={product.name}
               className="w-full h-full object-cover"
             />
