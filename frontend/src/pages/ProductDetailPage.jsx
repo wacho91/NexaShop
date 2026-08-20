@@ -9,6 +9,10 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  
+  // Nuevo estado para la galería de imágenes
+  const [images, setImages] = useState([]);
+  const [selectedImage, setSelectedImage] = useState('');
 
   const { addItem } = useCart();
   const navigate = useNavigate();
@@ -17,7 +21,31 @@ export default function ProductDetailPage() {
     setLoading(true);
     productsApi
       .get(slug)
-      .then(({ data }) => setProduct(data))
+      .then(({ data }) => {
+        setProduct(data);
+        
+        // === ROMPE-CÓDIGOS PARA PARSEAR TODAS LAS IMÁGENES ===
+        let parsedImages = [];
+        try {
+          if (Array.isArray(data.images) && data.images.length > 0) {
+            parsedImages = data.images;
+          } else if (typeof data.images === 'string') {
+            if (data.images.trim().startsWith('[')) {
+              const parsed = JSON.parse(data.images);
+              if (Array.isArray(parsed)) parsedImages = parsed;
+            } else if (data.images.trim() !== '') {
+              // Si vienen separadas por coma en texto plano
+              parsedImages = data.images.split(',').map(s => s.trim()).filter(Boolean);
+            }
+          }
+        } catch (e) {
+          parsedImages = [];
+        }
+        
+        setImages(parsedImages);
+        setSelectedImage(parsedImages[0] || ''); // Seleccionamos la primera por defecto
+        // ======================================================
+      })
       .catch(() => navigate('/productos'))
       .finally(() => setLoading(false));
   }, [slug, navigate]);
@@ -30,40 +58,49 @@ export default function ProductDetailPage() {
   if (loading) return <Spinner />;
   if (!product) return null;
 
-  // === ROMPE-CÓDIGOS A PRUEBA DE TODO PARA IMÁGENES ===
-  let mainImage = '';
-  try {
-    if (Array.isArray(product.images) && product.images.length > 0) {
-      mainImage = product.images[0];
-    } else if (typeof product.images === 'string') {
-      if (product.images.trim().startsWith('[')) {
-        const parsed = JSON.parse(product.images);
-        if (Array.isArray(parsed) && parsed.length > 0) mainImage = parsed[0];
-      } else if (product.images.trim() !== '') {
-        mainImage = product.images.split(',')[0].trim();
-      }
-    }
-  } catch (e) {
-    mainImage = '';
-  }
-  // ======================================================
-
   return (
     <div className="max-w-7xl mx-auto py-10 px-4">
       <div className="grid md:grid-cols-2 gap-10">
-        {/* Imagen */}
-        <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700 aspect-square flex items-center justify-center">
-          {mainImage ? (
-            <img src={mainImage} alt={product.name} className="w-full h-full object-cover" />
-          ) : (
-            <div className="text-gray-400 flex flex-col items-center gap-2">
-              <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-              <span>Sin imagen disponible</span>
+        
+        {/* === COLUMNA DE IMÁGENES (GALERÍA) === */}
+        <div className="flex flex-col gap-4">
+          {/* Imagen Principal Grande */}
+          <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700 aspect-square flex items-center justify-center relative">
+            {selectedImage ? (
+              <img 
+                src={selectedImage} 
+                alt={product.name} 
+                className="w-full h-full object-cover transition-all duration-300"
+              />
+            ) : (
+              <div className="text-gray-400 flex flex-col items-center gap-2">
+                <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                <span>Sin imagen disponible</span>
+              </div>
+            )}
+          </div>
+
+          {/* Miniaturas (Thumbnails) - Solo se muestran si hay más de 1 imagen */}
+          {images.length > 1 && (
+            <div className="grid grid-cols-6 gap-2">
+              {images.map((img, index) => (
+                <button 
+                  key={index} 
+                  onClick={() => setSelectedImage(img)}
+                  className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
+                    selectedImage === img 
+                      ? 'border-primary-500 ring-2 ring-primary-200 dark:ring-primary-900/50 scale-105' 
+                      : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600 opacity-70 hover:opacity-100'
+                  }`}
+                >
+                  <img src={img} alt={`vista ${index + 1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
             </div>
           )}
         </div>
 
-        {/* Detalles */}
+        {/* === COLUMNA DE DETALLES === */}
         <div className="flex flex-col justify-center">
           <h1 className="text-4xl font-extrabold tracking-tight mb-4">{product.name}</h1>
           <p className="text-3xl font-bold text-primary-600 mb-6">${product.price.toFixed(2)}</p>
