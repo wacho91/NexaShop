@@ -1,23 +1,29 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { productsApi } from '../api';
+import { productsApi, categoriesApi } from '../api';
 import ProductCard from '../components/ProductCard';
 import Spinner from '../components/Spinner';
 
 export default function HomePage() {
   const [featured, setFeatured] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentImage, setCurrentImage] = useState(0);
 
   // === IMÁGENES DE FONDO PARA EL CAROUSEL ===
-  // Usamos imágenes de alta calidad de Unsplash (puedes cambiarlas por las que quieras)
   const heroImages = [
-    "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop", // Moda/Ropa
-    "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop", // Tienda General
-    "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=2070&auto=format&fit=crop", // Tecnología
+    "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=2070&auto=format&fit=crop",
   ];
 
-  // Lógica para cambiar la imagen cada 4 segundos
+  // Testimonios de prueba (Prueba Social)
+  const testimonials = [
+    { name: "Carlos M.", role: "Cliente Verificado", text: "La calidad de los productos es increíble. Pedí unos audífonos y llegaron al día siguiente. ¡100% recomendados!" },
+    { name: "Laura G.", role: "Cliente Verificado", text: "Compré por primera vez y el proceso de pago fue súper seguro y fácil. El soporte me ayudó en todo." },
+    { name: "Andrés P.", role: "Cliente Verificado", text: "NexaShop se ha convertido en mi tienda de confianza. Los productos de tecnología son de alta calidad." }
+  ];
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentImage((prev) => (prev + 1) % heroImages.length);
@@ -26,17 +32,20 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
+    setLoading(true);
     productsApi
       .list({ featured: true, limit: 8, is_active: true })
       .then(({ data }) => setFeatured(data))
       .finally(() => setLoading(false));
+      
+    // Cargamos las categorías para la nueva sección visual
+    categoriesApi.list().then(({ data }) => setCategories(data)).catch(() => {});
   }, []);
 
   return (
     <div className="bg-white dark:bg-gray-900">
-      {/* === HERO SECTION CON CAROUSEL DE FONDO === */}
+      {/* === HERO SECTION === */}
       <section className="relative overflow-hidden h-[600px] flex items-center justify-center text-white">
-        {/* Capa de imágenes del carousel */}
         {heroImages.map((img, index) => (
           <div
             key={index}
@@ -46,11 +55,8 @@ export default function HomePage() {
             style={{ backgroundImage: `url(${img})` }}
           ></div>
         ))}
-
-        {/* Capa de difuminado (Overlay) para hacer el contraste */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/40 backdrop-bl-sm"></div>
 
-        {/* Contenido del Hero (Texto y Botón) */}
         <div className="relative z-10 text-center px-4 max-w-4xl">
           <span className="inline-block bg-white/10 backdrop-blur-md border border-white/20 px-4 py-1.5 rounded-full text-sm font-semibold mb-6">
             🚀 Nueva Colección 2024
@@ -111,6 +117,71 @@ export default function HomePage() {
           </div>
         )}
       </section>
+
+      {/* === NUEVA SECCIÓN: EXPLORAR CATEGORÍAS === */}
+      {categories.length > 0 && (
+        <section className="bg-gray-50 dark:bg-gray-800/50 py-16">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">Explora por Categorías</h2>
+              <p className="text-gray-500 mt-2">Encuentra lo que buscas en un clic</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {categories.map((cat) => (
+                <Link 
+                  key={cat.id} 
+                  to={`/productos?category=${cat.slug}`} 
+                  className="group relative h-64 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
+                >
+                  {/* Fondo de la tarjeta con degradado */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary-500 to-blue-600 group-hover:scale-105 transition-transform duration-500"></div>
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors"></div>
+                  
+                  {/* Contenido */}
+                  <div className="relative h-full flex flex-col items-center justify-center text-white p-6">
+                    <svg className="w-12 h-12 mb-4 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                    <h3 className="text-2xl font-bold capitalize">{cat.name}</h3>
+                    <span className="mt-2 text-sm font-semibold bg-white/20 px-4 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                      Ver productos →
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* === NUEVA SECCIÓN: TESTIMONIOS (PRUEBA SOCIAL) === */}
+      <section className="max-w-7xl mx-auto py-16 px-4">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">Lo que dicen nuestros clientes</h2>
+          <p className="text-gray-500 mt-2">Miles de personas ya confían en NexaShop</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {testimonials.map((t, i) => (
+            <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 hover:shadow-md transition">
+              {/* Estrellas */}
+              <div className="flex gap-1 mb-4 text-yellow-400">
+                {[...Array(5)].map((_, index) => (
+                  <svg key={index} className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                ))}
+              </div>
+              <p className="text-gray-600 dark:text-gray-300 italic mb-6">"{t.text}"</p>
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg">
+                  {t.name.charAt(0)}
+                </div>
+                <div>
+                  <p className="font-bold text-gray-900 dark:text-white">{t.name}</p>
+                  <p className="text-xs text-green-600 font-semibold">{t.role}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
     </div>
   );
 }
