@@ -15,7 +15,6 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     setLoading(true);
-
     productsApi
       .get(slug)
       .then(({ data }) => setProduct(data))
@@ -50,57 +49,62 @@ export default function ProductDetailPage() {
   // ======================================================
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4">
-      <div className="grid md:grid-cols-2 gap-8">
-        <div className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
+    <div className="max-w-7xl mx-auto py-10 px-4">
+      <div className="grid md:grid-cols-2 gap-10">
+        {/* Imagen */}
+        <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700 aspect-square flex items-center justify-center">
           {mainImage ? (
-            <img
-              src={mainImage}
-              alt={product.name}
-              className="w-full h-96 object-cover"
-            />
+            <img src={mainImage} alt={product.name} className="w-full h-full object-cover" />
           ) : (
-            <div className="h-96 flex items-center justify-center text-gray-400">
-              Sin imagen
+            <div className="text-gray-400 flex flex-col items-center gap-2">
+              <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              <span>Sin imagen disponible</span>
             </div>
           )}
         </div>
 
-        <div>
-          <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-          <p className="text-2xl font-semibold text-primary-600 mb-4">
-            ${product.price.toFixed(2)}
-          </p>
-          <p className="text-gray-600 dark:text-gray-300 mb-6">
-            {product.description}
-          </p>
+        {/* Detalles */}
+        <div className="flex flex-col justify-center">
+          <h1 className="text-4xl font-extrabold tracking-tight mb-4">{product.name}</h1>
+          <p className="text-3xl font-bold text-primary-600 mb-6">${product.price.toFixed(2)}</p>
+          
+          <div className="mb-6">
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{product.description || "Este producto no tiene una descripción detallada aún."}</p>
+          </div>
 
-          <p
-            className={`mb-4 ${
-              product.stock > 0 ? 'text-green-600' : 'text-red-600'
-            }`}
-          >
-            {product.stock > 0
-              ? `En stock (${product.stock} disponibles)`
-              : 'Agotado'}
-          </p>
+          <div className="mb-8">
+            {product.stock > 0 ? (
+              <span className="inline-flex items-center gap-2 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-3 py-1.5 rounded-full text-sm font-bold">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                En stock ({product.stock} disponibles)
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-2 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 px-3 py-1.5 rounded-full text-sm font-bold">
+                Agotado
+              </span>
+            )}
+          </div>
 
           <div className="flex items-center gap-4">
-            <input
-              type="number"
-              min="1"
-              max={product.stock}
-              value={quantity}
-              onChange={(e) => setQuantity(parseInt(e.target.value, 10) || 1)}
-              className="border rounded-md px-3 py-2 w-20 dark:bg-gray-800 dark:border-gray-700"
-            />
+            <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+              <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 py-3 text-lg font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition">-</button>
+              <input
+                type="number"
+                min="1"
+                max={product.stock}
+                value={quantity}
+                onChange={(e) => setQuantity(parseInt(e.target.value, 10) || 1)}
+                className="w-14 text-center font-semibold text-gray-900 dark:text-white dark:bg-gray-800 focus:outline-none border-x border-gray-300 dark:border-gray-600 py-3"
+              />
+              <button onClick={() => setQuantity(Math.min(product.stock, quantity + 1))} className="px-4 py-3 text-lg font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition">+</button>
+            </div>
 
             <button
               onClick={handleAdd}
               disabled={product.stock === 0}
-              className="bg-primary-600 text-white px-6 py-2 rounded-md font-semibold disabled:opacity-50"
+              className="flex-1 bg-gradient-to-r from-primary-600 to-blue-500 text-white px-8 py-3.5 rounded-lg font-bold shadow-md hover:shadow-lg hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
-              Añadir al carrito
+              Añadir al Carrito
             </button>
           </div>
         </div>
