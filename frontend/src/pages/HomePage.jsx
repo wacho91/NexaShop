@@ -7,6 +7,23 @@ import Spinner from '../components/Spinner';
 export default function HomePage() {
   const [featured, setFeatured] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentImage, setCurrentImage] = useState(0);
+
+  // === IMÁGENES DE FONDO PARA EL CAROUSEL ===
+  // Usamos imágenes de alta calidad de Unsplash (puedes cambiarlas por las que quieras)
+  const heroImages = [
+    "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop", // Moda/Ropa
+    "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop", // Tienda General
+    "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=2070&auto=format&fit=crop", // Tecnología
+  ];
+
+  // Lógica para cambiar la imagen cada 4 segundos
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImage((prev) => (prev + 1) % heroImages.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     productsApi
@@ -17,21 +34,31 @@ export default function HomePage() {
 
   return (
     <div className="bg-white dark:bg-gray-900">
-      {/* === HERO SECTION PREMIUM === */}
-      <section className="relative overflow-hidden bg-gray-900 text-white">
-        {/* Fondo con degradados y manchas de color */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-900 via-gray-900 to-blue-900"></div>
-        <div className="absolute top-0 left-0 w-96 h-96 bg-primary-600 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000"></div>
-        
-        <div className="relative max-w-7xl mx-auto py-28 md:py-40 px-4 text-center">
-          <span className="inline-block bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-1.5 rounded-full text-sm font-semibold mb-6">
+      {/* === HERO SECTION CON CAROUSEL DE FONDO === */}
+      <section className="relative overflow-hidden h-[600px] flex items-center justify-center text-white">
+        {/* Capa de imágenes del carousel */}
+        {heroImages.map((img, index) => (
+          <div
+            key={index}
+            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${
+              index === currentImage ? 'opacity-100' : 'opacity-0'
+            }`}
+            style={{ backgroundImage: `url(${img})` }}
+          ></div>
+        ))}
+
+        {/* Capa de difuminado (Overlay) para hacer el contraste */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/40 backdrop-bl-sm"></div>
+
+        {/* Contenido del Hero (Texto y Botón) */}
+        <div className="relative z-10 text-center px-4 max-w-4xl">
+          <span className="inline-block bg-white/10 backdrop-blur-md border border-white/20 px-4 py-1.5 rounded-full text-sm font-semibold mb-6">
             🚀 Nueva Colección 2024
           </span>
-          <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight leading-tight">
+          <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight leading-tight drop-shadow-lg">
             Eleva tu estilo con <span className="bg-gradient-to-r from-primary-400 to-blue-400 bg-clip-text text-transparent">NexaShop</span>
           </h1>
-          <p className="text-lg md:text-xl mb-10 text-gray-300 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl mb-10 text-gray-200 max-w-2xl mx-auto drop-shadow-md">
             Descubre los productos de mayor calidad al mejor precio. Envíos rápidos y pagos 100% seguros.
           </p>
           <Link
