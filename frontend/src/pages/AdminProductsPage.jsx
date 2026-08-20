@@ -212,7 +212,13 @@ export default function AdminProductsPage() {
 
               <div className="sm:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Imágenes (URLs separadas por coma)</label>
-                <input className={inputClass} value={form.images} onChange={(e) => setForm({ ...form, images: e.target.value })} placeholder="https://ejemplo.com/imagen.jpg, https://..." />
+                <textarea 
+                  className={inputClass} 
+                  rows="3" 
+                  value={form.images} 
+                  onChange={(e) => setForm({ ...form, images: e.target.value })} 
+                  placeholder="https://imagen1.jpg, https://imagen2.jpg, https://imagen3.jpg">
+                </textarea>
               </div>
 
               <div className="sm:col-span-2">
