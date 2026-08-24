@@ -10,14 +10,20 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [currentImage, setCurrentImage] = useState(0);
 
-  // === IMÁGENES DE FONDO PARA EL CAROUSEL ===
+  // === IMÁGENES DE FONDO PARA EL CAROUSEL Y CATEGORÍAS ===
   const heroImages = [
     "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=2070&auto=format&fit=crop",
   ];
 
-  // Testimonios de prueba (Prueba Social)
+  // Imágenes para las tarjetas de categorías
+   const categoryImages = [
+    "https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?q=80&w=800&auto=format&fit=crop", // Hombre
+    "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=800&auto=format&fit=crop", // Mujer (Nueva imagen garantizada)
+    "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop", // Tecnología
+  ];
+
   const testimonials = [
     { name: "Carlos M.", role: "Cliente Verificado", text: "La calidad de los productos es increíble. Pedí unos audífonos y llegaron al día siguiente. ¡100% recomendados!" },
     { name: "Laura G.", role: "Cliente Verificado", text: "Compré por primera vez y el proceso de pago fue súper seguro y fácil. El soporte me ayudó en todo." },
@@ -38,7 +44,6 @@ export default function HomePage() {
       .then(({ data }) => setFeatured(data))
       .finally(() => setLoading(false));
       
-    // Cargamos las categorías para la nueva sección visual
     categoriesApi.list().then(({ data }) => setCategories(data)).catch(() => {});
   }, []);
 
@@ -118,7 +123,7 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* === NUEVA SECCIÓN: EXPLORAR CATEGORÍAS === */}
+      {/* === EXPLORAR CATEGORÍAS (CON IMÁGENES REALES) === */}
       {categories.length > 0 && (
         <section className="bg-gray-50 dark:bg-gray-800/50 py-16">
           <div className="max-w-7xl mx-auto px-4">
@@ -127,21 +132,23 @@ export default function HomePage() {
               <p className="text-gray-500 mt-2">Encuentra lo que buscas en un clic</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {categories.map((cat) => (
+              {categories.map((cat, index) => (
                 <Link 
                   key={cat.id} 
                   to={`/productos?category=${cat.slug}`} 
-                  className="group relative h-64 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
+                  className="group relative h-64 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300"
                 >
-                  {/* Fondo de la tarjeta con degradado */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary-500 to-blue-600 group-hover:scale-105 transition-transform duration-500"></div>
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors"></div>
+                  {/* Imagen de fondo */}
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-500"
+                    style={{ backgroundImage: `url(${categoryImages[index % categoryImages.length]})` }}
+                  ></div>
+                  {/* Difuminado oscuro para que el texto se lea */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent group-hover:from-black/90 transition-colors"></div>
                   
-                  {/* Contenido */}
-                  <div className="relative h-full flex flex-col items-center justify-center text-white p-6">
-                    <svg className="w-12 h-12 mb-4 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-                    <h3 className="text-2xl font-bold capitalize">{cat.name}</h3>
-                    <span className="mt-2 text-sm font-semibold bg-white/20 px-4 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="relative h-full flex flex-col items-center justify-end text-white p-6 text-center">
+                    <h3 className="text-3xl font-extrabold capitalize drop-shadow-lg mb-2">{cat.name}</h3>
+                    <span className="mt-2 text-sm font-semibold bg-white/20 backdrop-blur-sm px-4 py-1.5 rounded-full opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
                       Ver productos →
                     </span>
                   </div>
@@ -152,7 +159,7 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* === NUEVA SECCIÓN: TESTIMONIOS (PRUEBA SOCIAL) === */}
+      {/* === TESTIMONIOS === */}
       <section className="max-w-7xl mx-auto py-16 px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">Lo que dicen nuestros clientes</h2>
@@ -161,7 +168,6 @@ export default function HomePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {testimonials.map((t, i) => (
             <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 hover:shadow-md transition">
-              {/* Estrellas */}
               <div className="flex gap-1 mb-4 text-yellow-400">
                 {[...Array(5)].map((_, index) => (
                   <svg key={index} className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
@@ -179,6 +185,29 @@ export default function HomePage() {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* === NEWSLETTER (CAPTACIÓN DE CLIENTES) === */}
+      <section className="bg-gray-50 dark:bg-gray-800/50 py-16">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-4">Únete a la comunidad NexaShop</h2>
+          <p className="text-gray-500 mb-8 max-w-xl mx-auto">Suscríbete y recibe un <span className="font-bold text-primary-600">10% de descuento</span> en tu primera compra, además de ofertas exclusivas.</p>
+          
+          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onSubmit={(e) => e.preventDefault()}>
+            <input 
+              type="email" 
+              required 
+              placeholder="tu@email.com" 
+              className="flex-1 px-5 py-3.5 rounded-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition outline-none"
+            />
+            <button 
+              type="submit" 
+              className="bg-gradient-to-r from-primary-600 to-blue-500 text-white px-8 py-3.5 rounded-full font-bold shadow-md hover:shadow-lg hover:scale-105 transition-all whitespace-nowrap"
+            >
+              Suscribirme
+            </button>
+          </form>
         </div>
       </section>
 
