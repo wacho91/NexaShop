@@ -1,3 +1,4 @@
+import { Toaster } from 'react-hot-toast';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
@@ -40,6 +41,7 @@ export default function App() {
               </Routes>
             </main>
             <Footer />
+             <Toaster position="bottom-right" />
           </div>
         </CartProvider>
       </AuthProvider>
