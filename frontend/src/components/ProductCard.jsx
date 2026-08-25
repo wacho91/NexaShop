@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
+import toast from 'react-hot-toast'; // <--- Importación del Toast
 
 export default function ProductCard({ product }) {
   const { addItem } = useCart();
@@ -21,6 +22,17 @@ export default function ProductCard({ product }) {
     mainImage = ''; // Si todo falla, mostramos "Sin imagen"
   }
   // ======================================================
+
+  // === FUNCIÓN PARA AGREGAR Y MOSTRAR NOTIFICACIÓN ===
+  const handleAddToCart = async () => {
+    try {
+      await addItem(product.id, 1);
+      toast.success('¡Producto agregado al carrito!');
+    } catch (error) {
+      toast.error('No se pudo agregar el producto.');
+    }
+  };
+  // ====================================================
 
   return (
     <div className="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 flex flex-col">
@@ -51,7 +63,7 @@ export default function ProductCard({ product }) {
       {/* Botón flotante de añadir al carrito (Aparece al pasar el ratón en PC, fijo en móvil) */}
       {product.stock > 0 && (
         <button
-          onClick={() => addItem(product.id, 1)}
+          onClick={handleAddToCart} // <--- CAMBIO AQUÍ: Usamos la nueva función
           className="absolute bottom-[150px] left-1/2 -translate-x-1/2 w-[90%] bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-primary-600 dark:text-white font-bold py-2.5 rounded-xl shadow-lg opacity-100 translate-y-4 md:opacity-0 md:translate-y-2 md:group-hover:opacity-100 md:group-hover:translate-y-0 transition-all duration-300 hover:bg-primary-600 hover:text-white flex items-center justify-center gap-2 z-10"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>

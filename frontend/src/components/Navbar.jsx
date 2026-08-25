@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useCart } from '../contexts/CartContext';
@@ -7,6 +8,17 @@ export default function Navbar() {
   const { user, isAdmin, logout } = useAuth();
   const { items_count } = useCart();
   const navigate = useNavigate();
+
+  // === LÓGICA DE ANIMACIÓN DEL CARRITO ===
+  const [bump, setBump] = useState(false);
+
+  useEffect(() => {
+    if (items_count === 0) return;
+    setBump(true);
+    const timer = setTimeout(() => setBump(false), 300);
+    return () => clearTimeout(timer);
+  }, [items_count]);
+  // ==========================================
 
   const handleLogout = async () => {
     await logout();
@@ -48,17 +60,21 @@ export default function Navbar() {
         <div className="flex items-center gap-3 md:gap-5">
           <ThemeToggle />
 
-          {/* Carrito Mejorado */}
+          {/* === CARRITO CON ANIMACIÓN BUMP === */}
           <Link
             to="/carrito"
-            className="relative p-2.5 text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+            className={`relative p-2.5 transition-all duration-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 ${
+              bump 
+                ? 'scale-125 text-primary-600 dark:text-primary-400' 
+                : 'scale-100 text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400'
+            }`}
             aria-label="Carrito"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
             {items_count > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center ring-2 ring-white dark:ring-gray-900 animate-pulse">
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center ring-2 ring-white dark:ring-gray-900">
                 {items_count}
               </span>
             )}
