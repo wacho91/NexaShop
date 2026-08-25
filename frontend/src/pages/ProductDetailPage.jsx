@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { productsApi } from '../api';
 import { useCart } from '../contexts/CartContext';
 import Spinner from '../components/Spinner';
+import toast from 'react-hot-toast'; // <--- Importación del Toast
 
 export default function ProductDetailPage() {
   const { slug } = useParams();
@@ -50,10 +51,16 @@ export default function ProductDetailPage() {
       .finally(() => setLoading(false));
   }, [slug, navigate]);
 
+  // === FUNCIÓN MODIFICADA PARA TOAST ===
   const handleAdd = async () => {
-    await addItem(product.id, quantity);
-    navigate('/carrito');
+    try {
+      await addItem(product.id, quantity);
+      toast.success(`${quantity} ${product.name} agregado al carrito!`);
+    } catch (error) {
+      toast.error('No se pudo agregar el producto.');
+    }
   };
+  // ======================================
 
   if (loading) return <Spinner />;
   if (!product) return null;
