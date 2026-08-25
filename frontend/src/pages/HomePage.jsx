@@ -64,7 +64,7 @@ export default function HomePage() {
 
         <div className="relative z-10 text-center px-4 max-w-4xl">
           <span className="inline-block bg-white/10 backdrop-blur-md border border-white/20 px-4 py-1.5 rounded-full text-sm font-semibold mb-6">
-            🚀 Nueva Colección 2024
+            🚀 Nueva Colección
           </span>
           <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight leading-tight drop-shadow-lg">
             Eleva tu estilo con <span className="bg-gradient-to-r from-primary-400 to-blue-400 bg-clip-text text-transparent">NexaShop</span>
