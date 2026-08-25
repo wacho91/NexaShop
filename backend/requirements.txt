@@ -10,3 +10,4 @@ bcrypt
 python-dotenv
 python-multipart
 email-validator
+PyJWT
