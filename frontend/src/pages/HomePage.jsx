@@ -50,7 +50,7 @@ export default function HomePage() {
   return (
     <div className="bg-white dark:bg-gray-900">
       {/* === HERO SECTION CON CAROUSEL === */}
-      <section className="relative overflow-hidden h-[600px] flex items-center justify-center text-white">
+      <section className="relative overflow-hidden h-[600px] flex items-center justify-center text-white bg-gray-900">
         {heroImages.map((img, index) => (
           <div
             key={index}
