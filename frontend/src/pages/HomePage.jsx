@@ -18,9 +18,9 @@ export default function HomePage() {
   ];
 
   // Imágenes para las tarjetas de categorías
-   const categoryImages = [
+  const categoryImages = [
     "https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?q=80&w=800&auto=format&fit=crop", // Hombre
-    "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=800&auto=format&fit=crop", // Mujer (Nueva imagen garantizada)
+    "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=800&auto=format&fit=crop", // Mujer
     "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop", // Tecnología
   ];
 
@@ -49,7 +49,7 @@ export default function HomePage() {
 
   return (
     <div className="bg-white dark:bg-gray-900">
-      {/* === HERO SECTION === */}
+      {/* === HERO SECTION CON CAROUSEL === */}
       <section className="relative overflow-hidden h-[600px] flex items-center justify-center text-white">
         {heroImages.map((img, index) => (
           <div
@@ -138,12 +138,10 @@ export default function HomePage() {
                   to={`/productos?category=${cat.slug}`} 
                   className="group relative h-64 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300"
                 >
-                  {/* Imagen de fondo */}
                   <div 
                     className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-500"
                     style={{ backgroundImage: `url(${categoryImages[index % categoryImages.length]})` }}
                   ></div>
-                  {/* Difuminado oscuro para que el texto se lea */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent group-hover:from-black/90 transition-colors"></div>
                   
                   <div className="relative h-full flex flex-col items-center justify-end text-white p-6 text-center">
