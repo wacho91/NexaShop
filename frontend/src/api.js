@@ -3,9 +3,10 @@ import axios from 'axios';
 /**
  * Cliente HTTP para NexaShop.
  * Endpoints exactos del backend FastAPI (backend/src/routes.py)
- * Base URL: /api/v1 (en desarrollo usa el proxy de Vite hacia http://localhost:8000)
  */
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
+// === LINK DE LA NUBE INYECTADO ===
+const API_BASE_URL = 'https://nexashop-api.onrender.com/api/v1';
+// =================================
 
 const api = axios.create({
   baseURL: API_BASE_URL,
