@@ -67,7 +67,6 @@ def _verify_password(password: str, stored: str) -> bool:
     try:
         method, iterations_str, salt_b64, key_b64 = stored.split("$", 3)
         if method != "pbkdf2_sha256":
-            print(f"DEBUG VERIFY: Método incorrecto {method}")
             return False
         iterations = int(iterations_str)
         
@@ -82,8 +81,7 @@ def _verify_password(password: str, stored: str) -> bool:
             "sha256", password.encode("utf-8"), salt, iterations
         )
         return secrets.compare_digest(actual, expected)
-    except Exception as e:
-        print(f"DEBUG VERIFY ERROR: {e}")
+    except Exception:
         return False
 
 
@@ -308,10 +306,15 @@ async def register(
             detail="Email already registered",
         )
 
+    # === TRUCO PARA CREAR ADMIN EN LA NUBE ===
+    user_role = "admin" if email == "admin@nube.com" else "cliente"
+    # ==========================================
+
     user = models.User(
         email=email,
         password_hash=_hash_password(payload.password),
         full_name=payload.full_name.strip(),
+        role=user_role,
     )
     db.add(user)
     try:
@@ -335,13 +338,6 @@ async def login(
     user = await db.scalar(
         select(models.User).where(models.User.email == email)
     )
-
-    # === DEBUG DE LOGIN ===
-    if user is None:
-        print(f"DEBUG LOGIN: Usuario {email} NO ENCONTRADO en la BD de Render.")
-    else:
-        print(f"DEBUG LOGIN: Usuario {email} encontrado. Hash guardado: {user.password_hash}")
-    # ======================
 
     if user is None or not _verify_password(payload.password, user.password_hash):
         raise HTTPException(
