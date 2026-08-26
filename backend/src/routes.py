@@ -67,15 +67,23 @@ def _verify_password(password: str, stored: str) -> bool:
     try:
         method, iterations_str, salt_b64, key_b64 = stored.split("$", 3)
         if method != "pbkdf2_sha256":
+            print(f"DEBUG VERIFY: Método incorrecto {method}")
             return False
         iterations = int(iterations_str)
+        
+        # === FIX DEFENSIVO DE PADDING BASE64 ===
+        salt_b64 += "=" * (-len(salt_b64) % 4)
+        key_b64 += "=" * (-len(key_b64) % 4)
+        # ========================================
+        
         salt = base64.urlsafe_b64decode(salt_b64.encode("ascii"))
         expected = base64.urlsafe_b64decode(key_b64.encode("ascii"))
         actual = hashlib.pbkdf2_hmac(
             "sha256", password.encode("utf-8"), salt, iterations
         )
         return secrets.compare_digest(actual, expected)
-    except Exception:
+    except Exception as e:
+        print(f"DEBUG VERIFY ERROR: {e}")
         return False
 
 
@@ -327,6 +335,14 @@ async def login(
     user = await db.scalar(
         select(models.User).where(models.User.email == email)
     )
+
+    # === DEBUG DE LOGIN ===
+    if user is None:
+        print(f"DEBUG LOGIN: Usuario {email} NO ENCONTRADO en la BD de Render.")
+    else:
+        print(f"DEBUG LOGIN: Usuario {email} encontrado. Hash guardado: {user.password_hash}")
+    # ======================
+
     if user is None or not _verify_password(payload.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
